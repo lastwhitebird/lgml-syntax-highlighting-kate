@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<language name="LGML" version="1" kateversion="3.0" section="Markup" extensions="*.lgml" author="© Alexey Chernov-Phoenix (Phoenix@RusNet)" license="LGPL" mimetype="text/x-lgml">
+    <highlighting>
+        <contexts>
+            <context attribute="Normal Text" lineEndContext="#stay" name="awaiting element ">
+                <RegExpr attribute="String1" context="orphan dot" String="^(\s*)\..*" dynamic="true"/>
+                <DetectSpaces/>
+                <Detect2Chars attribute="Comment" context="Comment1Line" char="/" char1="/"/>
+                <Detect2Chars attribute="Comment" context="CommentMultiLine" char="/" char1="*"/>
+                <RegExpr attribute="Element" context="ElementQ" String="(&quot;|\x27)" dynamic="true "/>
+                <RegExpr attribute="Element" context="element after" String="[^\s\.,:;\/]+"/>
+            </context>
+            <context attribute="Normal Text" lineEndContext="#pop" name="element after">
+                <DetectSpaces/>
+                <Detect2Chars attribute="Comment" context="Comment1Line" char="/" char1="/"/>
+                <Detect2Chars attribute="Comment" context="CommentMultiLine" char="/" char1="*"/>
+                <RegExpr attribute="Normal Text" context="ElementValueQ" String="(&quot;|\x27)" dynamic="true "/>
+                <RegExpr attribute="Normal Text" context="#pop!awaiting comma" String="[^\.,:;\/]+"/>
+                <DetectChar attribute="Normal Text" context="#pop!awaiting attribute" char=","/>
+                <DetectChar attribute="Normal Text" context="#pop" char=";"/>
+                <DetectChar attribute="Normal Text" context="#pop!TrailingDot" char="."/>
+                <DetectChar attribute="Normal Text" context="#pop!TrailingColon" char=":"/>
+            </context>
+            <context attribute="Normal Text" lineEndContext="#pop" name="awaiting comma">
+                <DetectSpaces/>
+                <Detect2Chars attribute="Comment" context="Comment1Line" char="/" char1="/"/>
+                <Detect2Chars attribute="Comment" context="CommentMultiLine" char="/" char1="*"/>
+                <DetectChar attribute="Normal Text" context="#pop!awaiting attribute" char=","/>
+                <DetectChar attribute="Normal Text" context="#pop" char=";"/>
+                <DetectChar attribute="Normal Text" context="#pop!TrailingDot" char="."/>
+                <DetectChar attribute="Normal Text" context="#pop!TrailingColon" char=":"/>
+            </context>
+            <context attribute="Element" lineEndContext="#pop" name="ElementQ" dynamic="true">
+                <RegExpr attribute="Element" context="#pop!element after" String="%1" dynamic="true"/>
+            </context>
+            <context attribute="Normal Text" lineEndContext="#pop" name="ElementValueQ" dynamic="true">
+                <RegExpr attribute="Normal Text" context="#pop#pop!awaiting comma" String="%1" dynamic="true"/>
+            </context>
+            <context attribute="String1" lineEndContext="#stay" name="orphan dot" dynamic="true" fallthrough="true" fallthroughContext="#pop">
+                <RegExpr attribute="String1" context="#stay" String="%1\s.*" dynamic="true"/>
+            </context>
+            <context attribute="Normal Text" lineEndContext="#stay" name="awaiting attribute">
+                <DetectSpaces/>
+                <Detect2Chars attribute="Comment" context="Comment1Line" char="/" char1="/"/>
+                <Detect2Chars attribute="Comment" context="CommentMultiLine" char="/" char1="*"/>
+                <RegExpr attribute="Attribute1" context="AttributeQ" String="(&quot;|\x27)" dynamic="true "/>
+                <RegExpr attribute="Attribute1" context="attribute after" String="[^\s\.,:;\/]+"/>
+            </context>
+            <context attribute="Normal Text" lineEndContext="#pop#pop" name="attribute after">
+                <DetectSpaces/>
+                <Detect2Chars attribute="Comment" context="Comment1Line" char="/" char1="/"/>
+                <Detect2Chars attribute="Comment" context="CommentMultiLine" char="/" char1="*"/>
+                <RegExpr attribute="Normal Text" context="AttributeValueQ" String="(&quot;|\x27)" dynamic="true "/>
+                <RegExpr attribute="Normal Text" context="#pop#pop!awaiting comma" String="[^\.,:;\/]+"/>
+                <DetectChar attribute="Normal Text" context="#pop" char=","/>
+                <DetectChar attribute="Normal Text" context="#pop#pop" char=";"/>
+                <DetectChar attribute="Normal Text" context="#pop#pop!TrailingDot" char="."/>
+                <DetectChar attribute="Normal Text" context="#pop#pop!TrailingColon" char=":"/>
+            </context>
+            <context attribute="Attribute1" lineEndContext="#pop" name="AttributeQ" dynamic="true">
+                <RegExpr attribute="Attribute1" context="#pop!attribute after" String="%1" dynamic="true"/>
+            </context>
+            <context attribute="Normal Text" lineEndContext="#pop" name="AttributeValueQ" dynamic="true">
+                <RegExpr attribute="Normal Text" context="#pop#pop#pop!awaiting comma" String="%1" dynamic="true"/>
+            </context>
+            <context attribute="Normal Text" lineEndContext="#pop!TrailingColonOrphan" name="TrailingColon" fallthrough="true" fallthroughContext="#pop!TrailingColonRich">
+                <RegExpr attribute="Normal Text" context="#pop!TrailingColonSpaceMet" String="\s?"/>
+            </context>
+            <context attribute="Normal Text" lineEndContext="#pop!TrailingColonOrphan" name="TrailingColonSpaceMet" fallthrough="true" fallthroughContext="#pop!TrailingColonRich"/>
+            <context attribute="String1" lineEndContext="#pop" name="TrailingColonRich">
+                <RegExpr attribute="String1" context="ColonValueQ" String="(&quot;|\x27)" dynamic="true "/>
+                <RegExpr attribute="String1" context="#stay" String="[^\.,:;\/]+"/>
+                <DetectChar attribute="Normal Text" context="#pop" char=";"/>
+            </context>
+            <context attribute="String1" lineEndContext="#stay" name="TrailingColonOrphan" dynamic="true">
+                <RegExpr attribute="String1" context="#pop!TrailingColonOrphanNext" String="^(\s*).*" dynamic="true"/>
+            </context>
+            <context attribute="String1" lineEndContext="#stay" name="TrailingColonOrphanNext" dynamic="true" fallthrough="true" fallthroughContext="awaiting element">
+                <RegExpr attribute="String1" context="#stay" String="%1.*" dynamic="true"/>
+            </context>
+            <context attribute="String1" lineEndContext="#pop" name="ColonValueQ" dynamic="true">
+                <RegExpr attribute="String1" context="#pop" String="%1" dynamic="true"/>
+            </context>
+            <context attribute="String1" lineEndContext="#pop" name="TrailingDot"/>
+            <context attribute="Comment" lineEndContext="#pop" name="Comment1Line"/>
+            <context attribute="Comment" lineEndContext="#stay" name="CommentMultiLine">
+                <Detect2Chars attribute="Comment" context="#pop" char="*" char1="/"/>
+            </context>
+        </contexts>
+        <itemDatas>
+            <itemData name="Normal Text" defStyleNum="dsNormal"/>
+            <itemData name="Element" defStyleNum="dsKeyword"/>
+            <itemData name="Attribute1" defStyleNum="dsBuiltIn"/>
+            <itemData name="String1" defStyleNum="dsString"/>
+            <itemData name="Comment" defStyleNum="dsComment"/>
+        </itemDatas>
+    </highlighting>
+    <general>
+        <folding indentationsensitive="1"/>
+        <emptyLines>
+            <emptyLine regexpr="\s+" casesensitive="false"/>
+        </emptyLines>
+        <comments>
+            <comment name="singleLine" start="//"/>
+            <comment name="multiLine" start="/*" end="*/"/>
+        </comments>
+        <keywords casesensitive="1"/>
+    </general>
+</language>

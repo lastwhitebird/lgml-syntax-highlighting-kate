@@ -1,0 +1,107 @@
+language, name LGML, version 1, kateversion '3.0', section Markup, extensions "*.lgml", author © Alexey Chernov-Phoenix (Phoenix@RusNet), license LGPL, mimetype text/x-lgml
+    highlighting
+        contexts
+            // * Element
+            context, attribute Normal Text, lineEndContext #stay, name awaiting element 
+                //orphan dot 
+                RegExpr, attribute String1, context orphan dot, String '^(\s*)\\..*', dynamic true
+                //other...
+                DetectSpaces
+                Detect2Chars, attribute Comment, context Comment1Line, char '/', char1 '/' 
+                Detect2Chars, attribute Comment, context CommentMultiLine, char '/', char1 '*' 
+                RegExpr, attribute Element, context ElementQ, String '("|\\x27)', dynamic true //ElementQ
+                RegExpr, attribute Element, context element after, String '[^\s\.,:;\/]+' //ElementS
+            context, attribute Normal Text, lineEndContext #pop, name element after
+                DetectSpaces
+                Detect2Chars, attribute Comment, context Comment1Line, char '/', char1 '/' 
+                Detect2Chars, attribute Comment, context CommentMultiLine, char '/', char1 '*' 
+                RegExpr, attribute Normal Text, context ElementValueQ, String '("|\\x27)', dynamic true //ElementValueQ
+                RegExpr, attribute Normal Text, context #pop!awaiting comma, String '[^\.,:;\/]+' //ElementValueS
+                //comma
+                DetectChar, attribute Normal Text, context #pop!awaiting attribute, char ','
+                DetectChar, attribute Normal Text, context #pop, char ';'
+                DetectChar, attribute Normal Text, context #pop!TrailingDot, char '.'
+                DetectChar, attribute Normal Text, context #pop!TrailingColon, char ':'
+            context, attribute Normal Text, lineEndContext #pop, name awaiting comma
+                DetectSpaces
+                Detect2Chars, attribute Comment, context Comment1Line, char '/', char1 '/' 
+                Detect2Chars, attribute Comment, context CommentMultiLine, char '/', char1 '*'
+                //comma
+                DetectChar, attribute Normal Text, context #pop!awaiting attribute, char ','
+                DetectChar, attribute Normal Text, context #pop, char ';'
+                DetectChar, attribute Normal Text, context #pop!TrailingDot, char '.'
+                DetectChar, attribute Normal Text, context #pop!TrailingColon, char ':'
+                
+            context, attribute Element, lineEndContext #pop, name ElementQ, dynamic true
+                RegExpr, attribute Element, context #pop!element after, String "%1", dynamic true
+            context, attribute Normal Text, lineEndContext #pop, name ElementValueQ, dynamic true
+                RegExpr, attribute Normal Text, context #pop#pop!awaiting comma, String "%1", dynamic true
+            // * Orpan dot
+            context, attribute String1, lineEndContext #stay, name orphan dot, dynamic true, fallthrough true, fallthroughContext #pop
+                RegExpr, attribute String1, context #stay, String "%1\s.*", dynamic true
+            // * Attribute
+            context, attribute Normal Text, lineEndContext #stay, name awaiting attribute
+                DetectSpaces
+                Detect2Chars, attribute Comment, context Comment1Line, char '/', char1 '/' 
+                Detect2Chars, attribute Comment, context CommentMultiLine, char '/', char1 '*' 
+                RegExpr, attribute Attribute1, context AttributeQ, String '("|\\x27)', dynamic true //AttributeQ
+                RegExpr, attribute Attribute1, context attribute after, String '[^\s\.,:;\/]+' //AttributeS
+            context, attribute Normal Text, lineEndContext #pop#pop, name attribute after
+                DetectSpaces
+                Detect2Chars, attribute Comment, context Comment1Line, char '/', char1 '/' 
+                Detect2Chars, attribute Comment, context CommentMultiLine, char '/', char1 '*' 
+                RegExpr, attribute Normal Text, context AttributeValueQ, String '("|\\x27)', dynamic true //AttributeValueQ
+                RegExpr, attribute Normal Text, context #pop#pop!awaiting comma, String '[^\.,:;\/]+' //AttributeValueS
+                //comma
+                DetectChar, attribute Normal Text, context #pop, char ','
+                DetectChar, attribute Normal Text, context #pop#pop, char ';'
+                DetectChar, attribute Normal Text, context #pop#pop!TrailingDot, char '.'
+                DetectChar, attribute Normal Text, context #pop#pop!TrailingColon, char ':'
+                //RegExpr, attribute Normal Text, context #pop#pop!TrailingColon, String ':\s*'
+                //RegExpr, attribute Normal Text, context #pop#pop!TrailingColonOrphan, String ":\s$"
+                //RegExpr, attribute Normal Text, context #pop#pop!TrailingColonRich, String ":\s"
+            context, attribute Attribute1, lineEndContext #pop, name AttributeQ, dynamic true
+                RegExpr, attribute Attribute1, context #pop!attribute after, String "%1", dynamic true
+            context, attribute Normal Text, lineEndContext #pop, name AttributeValueQ, dynamic true
+                RegExpr, attribute Normal Text, context #pop#pop#pop!awaiting comma, String "%1", dynamic true
+
+            // * Trailing colon
+            context, attribute Normal Text, lineEndContext #pop!TrailingColonOrphan, name TrailingColon, fallthrough true, fallthroughContext #pop!TrailingColonRich
+                RegExpr, attribute Normal Text, context #pop!TrailingColonSpaceMet, String '\s?'
+            context, attribute Normal Text, lineEndContext #pop!TrailingColonOrphan, name TrailingColonSpaceMet, fallthrough true, fallthroughContext #pop!TrailingColonRich
+            context, attribute String1, lineEndContext #pop, name TrailingColonRich
+                RegExpr, attribute String1, context ColonValueQ, String '("|\\x27)', dynamic true //ColonValueQ
+                RegExpr, attribute String1, context #stay, String '[^\.,:;\/]+' //ColonValueS
+                //comma
+                DetectChar, attribute Normal Text, context #pop, char ';'
+            context, attribute String1, lineEndContext #stay, name TrailingColonOrphan, dynamic true
+                RegExpr, attribute String1, context #pop!TrailingColonOrphanNext, String '^(\s*).*', dynamic true
+            context, attribute String1, lineEndContext #stay, name TrailingColonOrphanNext, dynamic true, fallthrough true, fallthroughContext awaiting element
+                RegExpr, attribute String1, context #stay, String "%1.*", dynamic true
+                
+
+            context, attribute String1, lineEndContext #pop, name ColonValueQ, dynamic true
+                RegExpr, attribute String1, context #pop, String "%1", dynamic true
+
+            // * Trailing comma
+            context, attribute String1, lineEndContext #pop, name TrailingDot
+            
+            // * Comment context
+            context, attribute Comment, lineEndContext #pop, name Comment1Line
+            context, attribute Comment, lineEndContext #stay, name CommentMultiLine
+                Detect2Chars, attribute Comment, context #pop, char '*', char1 '/'
+        itemDatas
+            itemData, name Normal Text, defStyleNum dsNormal
+            itemData, name Element, defStyleNum dsKeyword
+            itemData, name Attribute1, defStyleNum dsBuiltIn
+            itemData, name String1, defStyleNum dsString
+            itemData, name Comment, defStyleNum dsComment
+    general
+        folding, indentationsensitive 1
+        emptyLines
+            emptyLine, regexpr \s+, casesensitive false
+        comments
+            comment, name singleLine, start "//"
+            comment, name multiLine, start "/*", end "*/"
+        keywords, casesensitive 1
+
